@@ -71,11 +71,11 @@ The zeros currently remain unused.
 ## Interrupts
 
 CCPU currently supports these interrupts:
-- `0x0` - Used to put characters on console
+- `0x0` - Used to put characters on console   
   Setup: 
   - R1 needs to have the address of the text
   - R2 needs the length of the text
-- `0x1` - Used to get input from user
+- `0x1` - Used to get input from user    
   Setup:
   - R1 needs to have the address of the buffer
-  - R2 needs to have the length of the buffer
+  - R2 needs to have the length of the buffer  
