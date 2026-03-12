@@ -36,6 +36,8 @@ int instruction_codes[22] = {
 bool EF = false;    // Equal Flag
 bool GF = false;    // Greater Flag
 uint32_t timeOnStart = 0;
+uint32_t cycle = 0;
+
 Register register_mapped[] = {
     {"R0", R0}, {"R1", R1}, {"R2", R2}, {"R3", R3}, {"R4", R4},
     {"RA", RA}, {"RB", RB}, {"RC", RC}, {"RD", RD}, {"RE", RE},
@@ -119,6 +121,9 @@ int main(int argc, char *argv[]) {
         if (interpreter(opcode, type, arg1, arg2) == 1) {
             running = false;
         }
+
+        cycle++;
+
     }
 
     return 0;
@@ -365,6 +370,12 @@ int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2) {
                     // Get time since epoch
 
                     registers[R0] = time(NULL); //NOLINT
+
+                    break;
+                case 0x4:
+                    // Get instruction cycle
+
+                    registers[R0] = cycle;
 
                     break;
                 default:
