@@ -3,4 +3,4 @@ project(CCPU_simulator C)
 
 set(CMAKE_C_STANDARD 23)
 
-add_executable(CCPU_simulator main.c)
+add_executable(CCPU_simulator src/main.c)

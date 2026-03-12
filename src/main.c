@@ -340,17 +340,22 @@ int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2) {
         case INT:
             printf("INT\n");
 
-            if (arg2 == 0x0) {
-                uint32_t start = registers[R1];
-                uint32_t len   = registers[R2];
-                uint32_t end   = start + len;
+            switch (arg2) {
+                case 0x0:
+                    uint32_t start = registers[R1];
+                    uint32_t len   = registers[R2];
+                    uint32_t end   = start + len;
 
-                for (uint32_t i = start; i < end; i++) {
-                    printf("%c", memory[i]);
-                }
-            } else if (arg2 == 0x1) {
-                // Input interrupt
-                fgets(&memory[registers[R1]], registers[R2], stdin);
+                    for (uint32_t i = start; i < end; i++) {
+                        printf("%c", memory[i]);
+                    }
+                    break;
+                case 0x1:
+                    // Input interrupt
+                    fgets(&memory[registers[R1]], registers[R2], stdin); // Ignore the message
+                    break;
+                default:
+                    puts("Invalid interrupt!");
             }
 
             break;
