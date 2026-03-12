@@ -1,8 +1,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string.h> //NOLINT
 #include <stdbool.h> //NOLINT
+#include  <time.h>
 
 enum {
     R0, R1, R2, R3, R4,
@@ -34,7 +35,7 @@ int instruction_codes[22] = {
 };
 bool EF = false;    // Equal Flag
 bool GF = false;    // Greater Flag
-
+uint32_t timeOnStart = 0;
 Register register_mapped[] = {
     {"R0", R0}, {"R1", R1}, {"R2", R2}, {"R3", R3}, {"R4", R4},
     {"RA", RA}, {"RB", RB}, {"RC", RC}, {"RD", RD}, {"RE", RE},
@@ -51,9 +52,6 @@ Instruction instructions_mapped[] = {
 };
 
 int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2);
-int map_codes(char *name);
-int map_registers(char *reg);
-int parse(char *line);
 
 int main(int argc, char *argv[]) {
 
@@ -70,6 +68,8 @@ int main(int argc, char *argv[]) {
         puts("FILE DOESNT EXIST");
         return -1;
     }
+
+    timeOnStart = time(NULL); //NOLINT
 
     fseek(file, 0, SEEK_END);
     const long long file_size = ftell(file);
@@ -353,6 +353,19 @@ int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2) {
                 case 0x1:
                     // Input interrupt
                     fgets(&memory[registers[R1]], registers[R2], stdin); // Ignore the message
+                    break;
+                case 0x2:
+                    // Get time since boot up
+
+                    uint32_t currentTime = time(NULL); //NOLINT
+                    registers[R0] = currentTime - timeOnStart;
+
+                    break;
+                case 0x3:
+                    // Get time since epoch
+
+                    registers[R0] = time(NULL); //NOLINT
+
                     break;
                 default:
                     puts("Invalid interrupt!");
