@@ -81,5 +81,7 @@ CCPU currently supports these interrupts:
   - R2 needs to have the length of the buffer
 - `0x2` - Used to get the uptime in seconds
   Note: The return value is stored in R0
-- `0x3` Used to get the time since the Unix epoch
+- `0x3` - Used to get the time since the Unix epoch
+  Note: The return value is stored in R0
+- `0x4` - Used to get the current instruction cycle
   Note: The return value is stored in R0
