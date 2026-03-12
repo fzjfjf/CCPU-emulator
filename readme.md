@@ -66,7 +66,6 @@ CCPU uses ```.cexe``` executable files. The header of a ```.exec``` looks like:
 43 45 58 45  XX XX XX XX 
 ```
 `XX XX XX XX` represents the address at which the program is to be loaded in memory.  
-The zeros currently remain unused.    
 
 All instructions are 8 bytes long:  
 
