@@ -35,7 +35,7 @@ int instruction_codes[22] = {
 };
 bool EF = false;    // Equal Flag
 bool GF = false;    // Greater Flag
-uint32_t timeOnStart = 0;
+time_t timeOnStart = 0;
 uint32_t cycle = 0;
 
 Register register_mapped[] = {
@@ -74,15 +74,24 @@ int main(int argc, char *argv[]) {
     timeOnStart = time(NULL); //NOLINT
 
     fseek(file, 0, SEEK_END);
-    const long long file_size = ftell(file);
+
+    long file_size = ftell(file);
+    if (file_size < 0) {
+        puts("Failed to get file size");
+        fclose(file);
+        return -1;
+    }
+
     rewind(file);
 
-    buffer = malloc(file_size);
+    buffer = malloc((size_t)file_size);
+    if (!buffer) {
+        puts("malloc failed");
+        fclose(file);
+        return -1;
+    }
 
-    fread(buffer, 1, file_size, file);
-
-    fclose(file);
-
+    fread(buffer, 1, (size_t)file_size, file);
     // Check for header
     if (buffer[0] != 0x43 || buffer[1] != 0x45 || buffer[2] != 0x58 || buffer[3] != 0x45) {
         puts("Invalid file");
@@ -91,18 +100,21 @@ int main(int argc, char *argv[]) {
     }
 
     // Read address
-    uint32_t address = buffer[7] + (buffer[6] << 8) + (buffer[5] << 16) + (buffer[4] << 24);
+    uint32_t address = (uint32_t)buffer[7] +
+                       (uint32_t)(buffer[6] << 8) +
+                       (uint32_t)(buffer[5] << 16) +
+                       (uint32_t)(buffer[4] << 24);
     PC = address;
 
     // Put file into ram
     // Check if file was too big
-    if (sizeof(memory) < file_size + address) {
+    if ((long long)sizeof(memory) < file_size + address) {
         puts("File is too big");
         free(buffer);
         return 2;
     }
 
-    for (long long i = 8; i < file_size; i++, address++) {
+    for (long i = 8; i < file_size; i++, address++) {
         memory[address] = buffer[i];
     }
 
@@ -208,10 +220,10 @@ int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2) {
 
             //Big endian encoding
             uint32_t value = registers[arg1];
-            memory[arg2] = (value>>24) &0xFF;
-            memory[arg2+1] = (value>>16) &0xFF;
-            memory[arg2+2] = (value>>8) &0xFF;
-            memory[arg2+3] = (value) &0xFF;
+            memory[arg2] = (uint8_t)(value>>24) &0xFF;
+            memory[arg2+1] = (uint8_t)(value>>16) &0xFF;
+            memory[arg2+2] = (uint8_t)(value>>8) &0xFF;
+            memory[arg2+3] = (uint8_t)(value) &0xFF;
 
             break;
         case LOADB:
@@ -357,19 +369,19 @@ int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2) {
                     break;
                 case 0x1:
                     // Input interrupt
-                    fgets(&memory[registers[R1]], registers[R2], stdin); // Ignore the message
+                    fgets((char *)&memory[registers[R1]], (int)registers[R2], stdin); // Ignore the message
                     break;
                 case 0x2:
                     // Get time since boot up
 
-                    uint32_t currentTime = time(NULL); //NOLINT
-                    registers[R0] = currentTime - timeOnStart;
+                    uint32_t currentTime = (uint32_t)time(NULL); //NOLINT
+                    registers[R0] = (uint32_t)(currentTime - timeOnStart);
 
                     break;
                 case 0x3:
                     // Get time since epoch
 
-                    registers[R0] = time(NULL); //NOLINT
+                    registers[R0] = (uint32_t)time(NULL); //NOLINT
 
                     break;
                 case 0x4:
