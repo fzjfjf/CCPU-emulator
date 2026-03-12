@@ -66,7 +66,17 @@ CCPU uses ```.cexe``` executable files. The header of a ```.exec``` looks like:
 43 45 58 45  XX XX XX XX 
 ```
 `XX XX XX XX` represents the address at which the program is to be loaded in memory.  
-The zeros currently remain unused.  
+The zeros currently remain unused.    
+
+All instructions are 8 bytes long:  
+
+```OP TY 00 R1  00 00 00 00```
+- `OP` - Contains the opcode of the instruction  
+- `TY` - Determines if the last four bytes are a register, immediate or an address
+- `00` - Padding
+- `R1` - The first register
+- `00 00 00 00` - Contains either an address in memory, a register opcode or an immediate value.  
+  Note: `TY` determines what do the bytes represent
 
 ## Interrupts
 
