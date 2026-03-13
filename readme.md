@@ -40,7 +40,11 @@ Below is a table of instructions:
 |  0x12  |  INT   | Does an interrupt.                                                          |  
 |  0x13  |  IRET  | Returns from an interrupt.                                                  |  
 |  0x14  | LOADB  | Loads one byte.                                                             |
-|  0x15  | STOREB | Stores one byte.                                                            | 
+|  0x15  | STOREB | Stores one byte.                                                            |
+|  0x16  |  CALL  | Pushes the return address to the stack and jumps to a label                 |
+|  0x17  |  RET   | Pops the return address from the stack and jumps to it                      |
+|  0x18  |  PUSH  | Pushes a value to the stack                                                 |
+|  0x19  |  POP   | Pops the value last pushed from the steck                                   |
 
 Below is a table of registers:  
 
@@ -80,11 +84,11 @@ All instructions are 8 bytes long:
 ## Interrupts
 
 CCPU currently supports these interrupts:
-- `0x0` - Used to put characters on console
+- `0x0` - Used to put characters on console  
   Setup: 
   - R1 needs to have the address of the text
   - R2 needs the length of the text
-- `0x1` - Used to get input from user
+- `0x1` - Used to get input from user  
   Setup:
   - R1 needs to have the address of the buffer
   - R2 needs to have the length of the buffer

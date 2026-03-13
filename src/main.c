@@ -6,6 +6,11 @@
 #include  <time.h>
 
 enum {
+    REG_REG,
+    REG_ADDR,
+    REG_IMM,
+};
+enum {
     R0, R1, R2, R3, R4,
     RA, RB, RC, RD, RE, RF,
     RSP
@@ -17,6 +22,7 @@ enum {
     CMP, JMP, JMPE, JMPNE, JMPG, JMPL,
     HALT, INT, IRET,
     LOADB, STOREB,
+    CALL, RET, PUSH, POP
 };
 typedef struct {
     char *name;
@@ -54,6 +60,8 @@ Instruction instructions_mapped[] = {
 };
 
 int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2);
+int push(uint8_t type, uint8_t arg1, uint32_t arg2);
+uint32_t pop();
 
 int main(int argc, char *argv[]) {
 
@@ -120,7 +128,12 @@ int main(int argc, char *argv[]) {
 
     free(buffer); // Clear the buffer IMMEDIATELY after reading the file
 
+    // Initialize the stack pointer
+    registers[RSP] = 0x0;  // The stack begins at the start
+
     while (running) {
+        // Check if the stack pointer is bigger than allowed
+
         uint8_t opcode = memory[PC];
         uint8_t type = memory[PC+1];
         uint8_t arg1 = memory[PC+3];
@@ -130,7 +143,7 @@ int main(int argc, char *argv[]) {
                         (uint32_t)(memory[PC+4] << 24);
         PC = PC + 8;
 
-        if (interpreter(opcode, type, arg1, arg2) == 1) {
+        if (interpreter(opcode, type, arg1, arg2) != 0) {
             running = false;
         }
 
@@ -142,6 +155,8 @@ int main(int argc, char *argv[]) {
 }
 
 int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2) {
+
+    uint32_t value = 0;
 
     switch (code) {
         case ADD:
@@ -219,7 +234,7 @@ int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2) {
             printf("STORE\n");
 
             //Big endian encoding
-            uint32_t value = registers[arg1];
+            value = registers[arg1];
             memory[arg2] = (uint8_t)(value>>24) &0xFF;
             memory[arg2+1] = (uint8_t)(value>>16) &0xFF;
             memory[arg2+2] = (uint8_t)(value>>8) &0xFF;
@@ -398,10 +413,88 @@ int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2) {
         case IRET:
             printf("IRET\n");
             break;
+        case PUSH:
+            puts("PUSH");
+
+            push(type, arg1, arg2);
+
+            break;
+        case POP:
+            puts("POP");
+
+            registers[arg1] = pop();
+
+            break;
+        case CALL:
+            printf("CALL\n");
+
+            // Pushes PC to the stack and jumps to the address provided
+            push(REG_IMM, 0, PC);
+            PC = arg2;
+
+            break;
+        case RET:
+            printf("RET");
+
+            // Pops PC from the stack and jumps back
+            PC = pop();
+
+            break;
         default:
             printf("Unknown instruction!\n");
+            printf("OPCODE: 0x%x; TYPE: 0x%x; REG1: 0x%x; ARG2: 0x%x", code, type, arg1, arg2);
             break;
     }
 
     return 0;
+}
+
+int push(uint8_t type, uint8_t arg1, uint32_t arg2) {
+
+    // Check if the stack pointer is too close to the start of the program
+    if (registers[RSP]+3 > 0x100) {
+        puts("Stack overflow!");
+        return 2;
+    }
+
+    uint32_t value = 0;
+
+    switch (type) {
+        case REG_REG:
+            value = registers[arg1];
+            break;
+        case REG_IMM:
+            value = arg2;
+            break;
+        default:
+            puts("Invalid type!");
+            return -1;
+    }
+
+    memory[registers[RSP]] = (uint8_t)(value >> 24 & 0xFF);
+    memory[registers[RSP]+1] = (uint8_t)(value >> 16 & 0xFF);
+    memory[registers[RSP]+2] = (uint8_t)(value >> 8 & 0xFF);
+    memory[registers[RSP]+3] = (uint8_t)(value & 0xFF);
+    registers[RSP] += 4;
+
+    return 0;
+}
+
+uint32_t pop() {
+
+    // Check if the stack pointer is too low
+    if (registers[RSP] < 4) {
+        puts("Stack underflow!");
+        return 2;
+    }
+
+    registers[RSP] -= 4;
+
+    uint32_t value =
+        (uint32_t)memory[registers[RSP]+3] |
+        (uint32_t)memory[registers[RSP]+2] << 8 |
+        (uint32_t)memory[registers[RSP]+1] << 16 |
+        (uint32_t)memory[registers[RSP]] << 24;
+
+    return value;
 }
