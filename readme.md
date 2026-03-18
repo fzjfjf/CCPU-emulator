@@ -65,7 +65,7 @@ Below is a table of registers:
 
 ## .cexe
 
-CCPU uses ```.cexe``` executable files. The header of a ```.exec``` looks like:
+CCPU uses ```.cexe``` executable files. The header of a ```.cexe``` looks like:
 ``` hexdump
 43 45 58 45  XX XX XX XX 
 ```
