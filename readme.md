@@ -86,7 +86,7 @@ All instructions are 8 bytes long:
 - `00 00 00 00` - Contains either an address in memory, a register opcode or an immediate value.  
   Note: `TY` determines what do the bytes represent
 
-## Interrupts
+## Software interrupts
 
 CCPU currently supports these interrupts:
 - `0x0` - Used to put characters on console  
