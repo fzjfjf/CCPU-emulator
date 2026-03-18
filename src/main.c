@@ -157,47 +157,48 @@ int interpreter(Instruction instruction) {
 
             if (instruction.type == 0) {
                 // Both arguments are registers
-                registers[arg1] = registers[arg1] - registers[arg2];
+                registers[instruction.register1] = registers[instruction.register1] - registers[instruction.arg2];
             } else if (instruction.type == 1) {
                 // First argument is a register, second one is immideate
-                registers[arg1] = registers[arg1] - arg2;
+                registers[instruction.register1] = registers[instruction.register1] - instruction.arg2;
             }
 
             break;
         case MUL:
             printf("MUL\n");
 
-            if (type == 0) {
+            if (instruction.type == 0) {
                 // Both arguments are registers
-                registers[arg1] = registers[arg1] * registers[arg2];
-            } else if (type == 1) {
+                registers[instruction.register1] = registers[instruction.register1] * registers[instruction.arg2];
+            } else if (instruction.type == 1) {
                 // First argument is a register, second one is immideate
-                registers[arg1] = registers[arg1] * arg2;
+                registers[instruction.register1] = registers[instruction.register1] * instruction.arg2;
             }
 
             break;
         case DIV:
             printf("DIV\n");
-
-            if (type == 0) {
+            
+            if (instruction.type == 0) {
                 // Both arguments are registers
-                registers[arg1] = registers[arg1] / registers[arg2];
-                registers[arg2] = registers[arg1] % registers[arg2];
-            } else if (type == 1) {
+                value = registers[instruction.register1] / registers[instruction.arg2];
+                registers[instruction.arg2] = registers[instruction.register1] % registers[instruction.arg2];
+                registers[instruction.register1] = value;
+            } else if (instruction.type == 1) {
                 // First argument is a register, second one is immideate
-                registers[arg1] = registers[arg1] / arg2;
+                registers[instruction.register1] = registers[instruction.register1] / instruction.arg2;
             }
 
             break;
         case MOV:
             printf("MOV\n");
 
-            if (type == 0) {
+            if (instruction.type == 0) {
                 // Both arguments are registers
-                registers[arg1] = registers[arg2];
-            } else if (type == 1) {
+                registers[instruction.register1] = registers[instruction.arg2];
+            } else if (instruction.type == 1) {
                 // First argument is a register, second one is immediate
-                registers[arg1] = arg2;
+                registers[instruction.register1] = instruction.arg2;
             }
 
             break;
@@ -205,69 +206,69 @@ int interpreter(Instruction instruction) {
             printf("LOAD\n");
 
             // Big endian encoding
-            registers[arg1] = (uint32_t)memory[arg2] << 24 |
-                              (uint32_t)memory[arg2+1] << 16 |
-                              (uint32_t)memory[arg2+2] << 8 |
-                              (uint32_t)memory[arg2+3];
+            registers[instruction.register1] = (uint32_t)memory[instruction.arg2] << 24 |
+                                               (uint32_t)memory[instruction.arg2+1] << 16 |
+                                               (uint32_t)memory[instruction.arg2+2] << 8 |
+                                               (uint32_t)memory[instruction.arg2+3];
 
             break;
         case STORE:
             printf("STORE\n");
 
             //Big endian encoding
-            value = registers[arg1];
-            memory[arg2] = (uint8_t)(value>>24) &0xFF;
-            memory[arg2+1] = (uint8_t)(value>>16) &0xFF;
-            memory[arg2+2] = (uint8_t)(value>>8) &0xFF;
-            memory[arg2+3] = (uint8_t)(value) &0xFF;
+            value = registers[instruction.register1];
+            memory[instruction.arg2] = (uint8_t)(value>>24) &0xFF;
+            memory[instruction.arg2+1] = (uint8_t)(value>>16) &0xFF;
+            memory[instruction.arg2+2] = (uint8_t)(value>>8) &0xFF;
+            memory[instruction.arg2+3] = (uint8_t)(value) &0xFF;
 
             break;
         case LOADB:
             puts("LOADB");
 
-            registers[arg1] = memory[arg2];
+            registers[instruction.register1] = memory[instruction.arg2];
 
             break;
         case STOREB:
             puts("STOREB");
 
-            value = registers[arg1];
-            memory[arg2] = value & 0xFF;
+            value = registers[instruction.arg1];
+            memory[instruction.arg2] = value & 0xFF;
 
             break;
         case AND:
             printf("AND\n");
 
-            if (type == 0) {
-                registers[arg1] = registers[arg1] & registers[arg2];
+            if (instruction.type == 0) {
+                registers[instruction.register1] = registers[instruction.register1] & registers[instruction.arg2];
             } else {
-                registers[arg1] = registers[arg1] & arg2;
+                registers[instruction.register1] = registers[instruction.register1] & instruction.arg2;
             }
 
             break;
         case NOT:
             printf("NOT\n");
 
-            registers[arg1] = ~registers[arg1];
+            registers[instruction.register1] = ~registers[instruction.register1];
 
             break;
         case OR:
             printf("OR\n");
 
-            if (type == 0) {
-                registers[arg1] = registers[arg1] | registers[arg2];
+            if (instruction.type == 0) {
+                registers[instruction.register1] = registers[instruction.register1] | registers[instruction.arg2];
             } else {
-                registers[arg1] = registers[arg1] | arg2;
+                registers[instruction.register1] = registers[instruction.register1] | instruction.arg2;
             }
 
             break;
         case XOR:
             printf("XOR\n");
 
-            if (type == 0) {
-                registers[arg1] = registers[arg1] ^ registers[arg2];
+            if (instruction.type == 0) {
+                registers[instruction.register1] = registers[instruction.reigster1] ^ registers[instruction.arg2];
             } else {
-                registers[arg1] = registers[arg1] ^ arg2;
+                registers[instruction.register1] = registers[instruction.register1] ^ instruction.arg2;
             }
 
             break;
@@ -277,25 +278,25 @@ int interpreter(Instruction instruction) {
             EF = 0;
             GF = 0;
 
-            if (type == 0) {
-                if (registers[arg1] == registers[arg2]) {
+            if (instruction.type == 0) {
+                if (registers[instruction.register1] == registers[instruction.arg2]) {
                     EF = 1;
                     GF = 0;
-                } else if (registers[arg1] < registers[arg2]) {
+                } else if (registers[instruction.register1] < registers[instruction.arg2]) {
                     GF = 0;
                     EF = 0;
-                } else if (registers[arg1] > registers[arg2]) {
+                } else if (registers[instruction.register1] > registers[instruction.arg2]) {
                     GF = 1;
                     EF = 0;
                 }
             } else {
-                if (registers[arg1] == arg2) {
+                if (registers[instruction.register1] == instruction.arg2) {
                     EF = 1;
                     GF = 0;
-                } else if (registers[arg1] < arg2) {
+                } else if (registers[instruction.register1] < instruction.arg2) {
                     GF = 0;
                     EF = 0;
-                } else if (registers[arg1] > arg2) {
+                } else if (registers[instruction.register1] > instruction.arg2) {
                     GF = 1;
                     EF = 0;
                 }
@@ -306,14 +307,14 @@ int interpreter(Instruction instruction) {
             break;
         case JMP:
             printf("JMP\n");
-            PC = arg2;
+            PC = instruction.arg2;
             break;
         case JMPE:
             printf("JMPE\n");
 
             // Jumps if EF = 1
             if (EF == 1 && GF == 0) {
-                PC = arg2;
+                PC = instruction.arg2;
             }
 
             break;
@@ -322,9 +323,9 @@ int interpreter(Instruction instruction) {
 
             // Jumps if EF = 0
             if (EF == 0) {
-                printf("INSIDE JMPNE, FLAGS: %i %i, PC: 0x%x, arg2: 0x%x\n", EF, GF, PC, arg2);
-                PC = arg2;
-                printf("PC: 0x%x, arg2: 0x%x\n", PC, arg2);
+                printf("INSIDE JMPNE, FLAGS: %i %i, PC: 0x%x, arg2: 0x%x\n", EF, GF, PC, instruction.arg2);
+                PC = instruction.arg2;
+                printf("PC: 0x%x, arg2: 0x%x\n", PC, instruction.arg2);
             }
 
             break;
@@ -333,7 +334,7 @@ int interpreter(Instruction instruction) {
 
             // CF = 1
             if (GF == 1 && EF == 0) {
-                PC = arg2;
+                PC = instruction.arg2;
             }
 
             break;
@@ -343,7 +344,7 @@ int interpreter(Instruction instruction) {
             // CF = 0
             if (GF == 0 && EF == 0) {
                 //jump
-                PC = arg2;
+                PC = instruction.arg2;
             }
 
             break;
@@ -353,7 +354,7 @@ int interpreter(Instruction instruction) {
         case INT:
             printf("INT\n");
 
-            switch (arg2) {
+            switch (instruction.arg2) {
                 case 0x0:
                     uint32_t start = registers[R1];
                     uint32_t len   = registers[R2];
@@ -397,13 +398,13 @@ int interpreter(Instruction instruction) {
         case PUSH:
             puts("PUSH");
 
-            push(type, arg1, arg2);
+            push(instruction.type, instruction.register1, instruction.arg2);
 
             break;
         case POP:
             puts("POP");
 
-            registers[arg1] = pop();
+            registers[instruction.register1] = pop();
 
             break;
         case CALL:
@@ -423,7 +424,7 @@ int interpreter(Instruction instruction) {
             break;
         default:
             printf("Unknown instruction!\n");
-            printf("OPCODE: 0x%x; TYPE: 0x%x; REG1: 0x%x; ARG2: 0x%x", code, type, arg1, arg2);
+            printf("OPCODE: 0x%x; TYPE: 0x%x; REG1: 0x%x; ARG2: 0x%x", instruction.opcode, instruction.type, instruction.register1, instruction.arg2);
             break;
     }
 
