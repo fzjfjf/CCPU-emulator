@@ -14,7 +14,7 @@ CCPU has:
 - 12 Registers, of which:
   - R0 is for a return value
   - R1-R4 are for holding arguments
-    - RA-RF are general purpose registers
+  - RA-RF are general purpose registers
   - RSP which is reserved for the stack  
     Note: Developers must make their own stack!  
 - 1 MB of RAM memory
