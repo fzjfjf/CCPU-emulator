@@ -2,7 +2,7 @@
 
 ## About
 
-CCPU is a cpu emulator written in C. It has a custom ISA. 
+CCPU is a cpu emulator written in C. Uses a custom ISA. 
 
 ## Contribution guidelines
 
