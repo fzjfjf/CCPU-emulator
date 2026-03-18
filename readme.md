@@ -12,10 +12,10 @@ To contribute, please start PRs on the indev branch and not on the main branch. 
 
 CCPU has:
 - 12 Registers, of which:
-  - R0 is for a return value
-  - R1-R4 are for holding arguments
-  - RA-RF are general purpose registers
-  - RSP which is reserved for the stack  
+  - `R0` is for a return value
+  - `R1`-`R4` are for holding arguments
+  - `RA`-`RF` are general purpose registers
+  - `RSP` which is reserved for the stack  
 - 1 MB of RAM memory
 
 ## ISA
@@ -27,7 +27,7 @@ Below is a table of instructions:
 |  0x00  |  ADD   | Adds two values together. Note: The first argument has to be a register!    |  
 |  0x01  |  SUB   | Subtracts two values.                                                       |  
 |  0x02  |  MUL   | Multiplies two values.                                                      |  
-|  0x03  |  DIV   | Divides two values. The moduls is saved in the second register.             |  
+|  0x03  |  DIV   | Divides two values. The modulus is saved in the second register.             |  
 |  0x04  |  MOV   | Moves a value into a register. The value can be an immideate or a register. |   
 |  0x05  |  LOAD  | Loads a value from memory.                                                  |  
 |  0x06  | STORE  | Stores a value in memory.                                                   |   
@@ -46,10 +46,10 @@ Below is a table of instructions:
 |  0x13  |  IRET  | Returns from an interrupt.                                                  |  
 |  0x14  | LOADB  | Loads one byte.                                                             |
 |  0x15  | STOREB | Stores one byte.                                                            |
-|  0x16  |  CALL  | Pushes the return address to the stack and jumps to a label                 |
-|  0x17  |  RET   | Pops the return address from the stack and jumps to it                      |
-|  0x18  |  PUSH  | Pushes a value to the stack                                                 |
-|  0x19  |  POP   | Pops the value last pushed from the steck                                   |
+|  0x16  |  CALL  | Pushes the return address to the stack and jumps to a label.                |
+|  0x17  |  RET   | Pops the return address from the stack and jumps to it.                     |
+|  0x18  |  PUSH  | Pushes a value to the stack,                                                |
+|  0x19  |  POP   | Pops the value last pushed to the stack.                                    |
 
 Below is a table of registers:  
 
