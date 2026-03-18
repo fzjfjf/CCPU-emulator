@@ -1,6 +1,6 @@
 # CCPU
 
-CCPU is a cpu emulator written in C. It has a custom ISA.
+CCPU is a cpu emulator written in C. It has a custom ISA. To contribute, start PRs on the indev branch. 
 
 ## Structure
 
