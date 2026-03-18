@@ -24,42 +24,23 @@ enum {
     LOADB, STOREB,
     CALL, RET, PUSH, POP
 };
+
 typedef struct {
-    char *name;
-    int code;
+    uint8_t opcode;
+    uint8_t type;
+    uint8_t register1;
+    uint32_t arg2;
 } Instruction;
-typedef struct {
-    char *name;
-    int reg;
-} Register;
 
 uint32_t PC = 0x0;
-uint32_t registers[12] = {};
-uint8_t memory[0xFFFFF] = {0};
-int instruction_codes[22] = {
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21
-};
+uint32_t registers[12] = {0};
+uint8_t memory[0x100000] = {0}; // 0x10000 is exactly one MB of memory
 bool EF = false;    // Equal Flag
 bool GF = false;    // Greater Flag
 time_t timeOnStart = 0;
 uint32_t cycle = 0;
 
-Register register_mapped[] = {
-    {"R0", R0}, {"R1", R1}, {"R2", R2}, {"R3", R3}, {"R4", R4},
-    {"RA", RA}, {"RB", RB}, {"RC", RC}, {"RD", RD}, {"RE", RE},
-    {"RF", RF}, {"RSP", RSP}
-};
-
-Instruction instructions_mapped[] = {
-    {"ADD", ADD}, {"SUB", SUB}, {"MUL", MUL}, {"DIV", DIV},
-    {"MOV", MOV}, {"LOAD", LOAD}, {"STORE", STORE}, {"AND", AND},
-    {"NOT", NOT}, {"OR", OR}, {"XOR", XOR}, {"CMP", CMP},
-    {"JMP", JMP}, {"JMPE", JMPE}, {"JMPNE", JMPNE}, {"JMPG", JMPG},
-    {"JMPL", JMPL}, {"HALT", HALT}, {"INT", INT}, {"IRET", IRET},
-    {"LOADB", LOADB}, {"STOREB", STOREB,}
-};
-
-int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2);
+int interpreter(Instruction instruction);
 int push(uint8_t type, uint8_t arg1, uint32_t arg2);
 uint32_t pop();
 
@@ -130,20 +111,20 @@ int main(int argc, char *argv[]) {
 
     // Initialize the stack pointer
     registers[RSP] = 0x0;  // The stack begins at the start
-
+    // Make an instruction variable
+    Instruction instruction;
+    
     while (running) {
-        // Check if the stack pointer is bigger than allowed
-
-        uint8_t opcode = memory[PC];
-        uint8_t type = memory[PC+1];
-        uint8_t arg1 = memory[PC+3];
-        uint32_t arg2 = (uint32_t)memory[PC+7] |
+        instruction.opcode = memory[PC];
+        instruction.type = memory[PC+1];
+        instruction.register1 = memory[PC+3];
+        instruction.arg2 = (uint32_t)memory[PC+7] |
                         (uint32_t)(memory[PC+6] << 8) |
                         (uint32_t)(memory[PC+5] << 16) |
                         (uint32_t)(memory[PC+4] << 24);
         PC = PC + 8;
 
-        if (interpreter(opcode, type, arg1, arg2) != 0) {
+        if (interpreter(instruction) != 0) {
             running = false;
         }
 
@@ -154,30 +135,30 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-int interpreter(uint8_t code, uint8_t type, uint8_t arg1, uint32_t arg2) {
+int interpreter(Instruction instruction) {
 
     uint32_t value = 0;
 
-    switch (code) {
+    switch (instruction.opcode) {
         case ADD:
             printf("ADD\n");
 
-            if (type == 0) {
+            if (instruction.type == 0) {
                 // Both arguments are registers
-                registers[arg1] = registers[arg1] + registers[arg2];
-            } else if (type == 1) {
+                registers[instruction.register1] = registers[instruction.register1] + registers[instruction.arg2];
+            } else if (instruction.type == 1) {
                 // First argument is a register, second one is immideate
-                registers[arg1] = registers[arg1] + arg2;
+                registers[instruction.register1] = registers[instruction.register1] + instruction.arg2;
             }
 
             break;
         case SUB:
             printf("SUB\n");
 
-            if (type == 0) {
+            if (instruction.type == 0) {
                 // Both arguments are registers
                 registers[arg1] = registers[arg1] - registers[arg2];
-            } else if (type == 1) {
+            } else if (instruction.type == 1) {
                 // First argument is a register, second one is immideate
                 registers[arg1] = registers[arg1] - arg2;
             }
