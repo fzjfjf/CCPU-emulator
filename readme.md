@@ -1,6 +1,12 @@
 # CCPU
 
-CCPU is a cpu emulator written in C. It has a custom ISA. To contribute, start PRs on the indev branch. 
+## About
+
+CCPU is a cpu emulator written in C. It has a custom ISA. 
+
+## Contribution guidelines
+
+To contribute, please start PRs on the indev branch and not on the main branch. Use of AI is not allowed. 
 
 ## Structure
 
