@@ -93,8 +93,8 @@ CCPU currently supports these interrupts:
   Setup: 
   - `R1` needs to have the address of the text
   - `R2` needs the length of the text
-- `0x1` - Used to get input from user  
-  - `R0` will have the lenght of the input
+- `0x1` - Used to get input from user   
+  Setup:  
   - `R1` needs to have the address of the buffer
   - `R2` needs to have the length of the buffer
 - `0x2` - Used to get the uptime in seconds  
