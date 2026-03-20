@@ -91,15 +91,15 @@ All instructions are 8 bytes long:
 CCPU currently supports these interrupts:
 - `0x0` - Used to put characters on console  
   Setup: 
-  - R1 needs to have the address of the text
-  - R2 needs the length of the text
+  - `R1` needs to have the address of the text
+  - `R2` needs the length of the text
 - `0x1` - Used to get input from user  
-  Setup:
-  - R1 needs to have the address of the buffer
-  - R2 needs to have the length of the buffer
+  - `R0` will have the lenght of the input
+  - `R1` needs to have the address of the buffer
+  - `R2` needs to have the length of the buffer
 - `0x2` - Used to get the uptime in seconds  
-  Note: The return value is stored in R0  
+  Note: The return value is stored in `R0`  
 - `0x3` - Used to get the time since the Unix epoch  
-  Note: The return value is stored in R0  
+  Note: The return value is stored in `R0`  
 - `0x4` - Used to get the current instruction cycle  
-  Note: The return value is stored in R0  
+  Note: The return value is stored in `R0`  
