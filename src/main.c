@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdbool.h> //NOLINT
 #include <time.h>
+#include <signal.h>
+#include "input.h"
 
 enum {
     REG_REG,
@@ -38,12 +40,15 @@ bool EF = false;    // Equal Flag
 bool GF = false;    // Greater Flag
 time_t timeOnStart = 0;
 uint32_t cycle = 0;
+uint32_t stdin_location = 0xFF100;   // Used for tracking the location of the last byte in stdin
 
 int interpreter(Instruction instruction);
 int push(uint8_t type, uint8_t arg1, uint32_t arg2);
 uint32_t pop();
 
 int main(int argc, char *argv[]) {
+
+    signal(SIGINT, (__sighandler_t)disable_raw_mode);
 
     if (argc < 2) {
         puts("No file provided!");
@@ -112,7 +117,12 @@ int main(int argc, char *argv[]) {
     registers[RSP] = 0xFFFFF;  // The stack begins at the start
     // Make an instruction variable
     Instruction instruction;
-    
+    int c;
+
+    // Change the terminal settings
+    enable_nonblocking();
+    enable_raw_mode();
+
     while (running) {
         instruction.opcode = memory[PC];
         instruction.type = memory[PC+1];
@@ -125,6 +135,16 @@ int main(int argc, char *argv[]) {
 
         if (interpreter(instruction) != 0) {
             running = false;
+            disable_raw_mode();
+        }
+
+        c = read_char();
+        if (c == -1) {
+            if (stdin_location > 0xFF1FF) {
+                stdin_location = 0xFF100;
+            }
+            memory[stdin_location] = (uint8_t)c;
+            stdin_location++;
         }
 
         cycle++;
@@ -365,7 +385,17 @@ int interpreter(Instruction instruction) {
                     break;
                 case 0x1:
                     // Input interrupt
-                    fgets((char *)&memory[registers[R1]], (int)registers[R2], stdin); // Ignore the message
+                    int c = 0;
+                    while (c != 10) {
+                        c = read_char();
+                        if (c == -1 || c == 0) continue;
+
+                        memory[stdin_location] = (uint8_t)c;
+                        stdin_location++;
+
+                        if (stdin_location > 0xFF1FF) stdin_location = 0xFF100;
+                    }
+
                     break;
                 case 0x2:
                     // Get time since boot up
