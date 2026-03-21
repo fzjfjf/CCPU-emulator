@@ -27,7 +27,7 @@ Below is a table of instructions:
 |  0x00  |  ADD   | Adds two values together. Note: The first argument has to be a register!    |  
 |  0x01  |  SUB   | Subtracts two values.                                                       |  
 |  0x02  |  MUL   | Multiplies two values.                                                      |  
-|  0x03  |  DIV   | Divides two values. The modulus is saved in the second register.             |  
+|  0x03  |  DIV   | Divides two values. The modulus is saved in the second register.            |  
 |  0x04  |  MOV   | Moves a value into a register. The value can be an immideate or a register. |   
 |  0x05  |  LOAD  | Loads a value from memory.                                                  |  
 |  0x06  | STORE  | Stores a value in memory.                                                   |   

@@ -232,7 +232,7 @@ int interpreter(Instruction instruction) {
         case STOREB:
             puts("STOREB");
 
-            value = registers[instruction.arg1];
+            value = registers[instruction.register1];
             memory[instruction.arg2] = value & 0xFF;
 
             break;
@@ -266,7 +266,7 @@ int interpreter(Instruction instruction) {
             printf("XOR\n");
 
             if (instruction.type == 0) {
-                registers[instruction.register1] = registers[instruction.reigster1] ^ registers[instruction.arg2];
+                registers[instruction.register1] = registers[instruction.register1] ^ registers[instruction.arg2];
             } else {
                 registers[instruction.register1] = registers[instruction.register1] ^ instruction.arg2;
             }
@@ -412,7 +412,7 @@ int interpreter(Instruction instruction) {
 
             // Pushes PC to the stack and jumps to the address provided
             push(REG_IMM, 0, PC);
-            PC = arg2;
+            PC = instruction.arg2;
 
             break;
         case RET:
