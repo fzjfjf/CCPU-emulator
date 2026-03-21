@@ -103,3 +103,17 @@ CCPU currently supports these interrupts:
   Note: The return value is stored in `R0`  
 - `0x4` - Used to get the current instruction cycle  
   Note: The return value is stored in `R0`  
+
+## Memory layout
+ 
+Memory layout looks like this:
+
+| Address from | Address to | Purpose                          |
+|:------------:|:----------:|:---------------------------------|
+|   0x00000    |  0xEFFFF   | Memory for the program data      |
+|   0xF0000    |  0xFEFFF   | Memory for the program variables |
+|   0xFF000    |  0xFF0FF   | Reserved for stdout              |
+|   0xFF100    |  0xFF1FF   | Reserved for stdin               |
+|   0xFF200    |  0xFFFFF   | Reserved for the stack           |
+
+

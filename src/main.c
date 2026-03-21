@@ -1,9 +1,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h> //NOLINT
 #include <stdbool.h> //NOLINT
-#include  <time.h>
+#include <time.h>
 
 enum {
     REG_REG,
@@ -110,7 +109,7 @@ int main(int argc, char *argv[]) {
     free(buffer); // Clear the buffer IMMEDIATELY after reading the file
 
     // Initialize the stack pointer
-    registers[RSP] = 0x0;  // The stack begins at the start
+    registers[RSP] = 0xFFFFF;  // The stack begins at the start
     // Make an instruction variable
     Instruction instruction;
     
@@ -424,7 +423,8 @@ int interpreter(Instruction instruction) {
             break;
         default:
             printf("Unknown instruction!\n");
-            printf("OPCODE: 0x%x; TYPE: 0x%x; REG1: 0x%x; ARG2: 0x%x", instruction.opcode, instruction.type, instruction.register1, instruction.arg2);
+            printf("OPCODE: 0x%x; TYPE: 0x%x; REG1: 0x%x; ARG2: 0x%x",
+                instruction.opcode, instruction.type, instruction.register1, instruction.arg2);
             break;
     }
 
@@ -433,9 +433,9 @@ int interpreter(Instruction instruction) {
 
 int push(uint8_t type, uint8_t arg1, uint32_t arg2) {
 
-    // Check if the stack pointer is too close to the start of the program
-    if (registers[RSP]+3 > 0x100) {
-        puts("Stack overflow!");
+    // Check if the stack pointer is too close to the end of the memory
+    if (registers[RSP] > 0xFFFFF - 0xFF) {
+        puts("Stack underflow!");
         return 2;
     }
 
@@ -453,30 +453,31 @@ int push(uint8_t type, uint8_t arg1, uint32_t arg2) {
             return -1;
     }
 
+    registers[RSP] -= 4;
+
     memory[registers[RSP]] = (uint8_t)(value >> 24 & 0xFF);
     memory[registers[RSP]+1] = (uint8_t)(value >> 16 & 0xFF);
     memory[registers[RSP]+2] = (uint8_t)(value >> 8 & 0xFF);
     memory[registers[RSP]+3] = (uint8_t)(value & 0xFF);
-    registers[RSP] += 4;
 
     return 0;
 }
 
 uint32_t pop() {
 
-    // Check if the stack pointer is too low
-    if (registers[RSP] < 4) {
-        puts("Stack underflow!");
+    // Check if the stack pointer is too high
+    if (registers[RSP] > 0xFFFFF - 3) {
+        puts("Stack Overflow!");
         return 2;
     }
-
-    registers[RSP] -= 4;
 
     uint32_t value =
         (uint32_t)memory[registers[RSP]+3] |
         (uint32_t)memory[registers[RSP]+2] << 8 |
         (uint32_t)memory[registers[RSP]+1] << 16 |
         (uint32_t)memory[registers[RSP]] << 24;
+
+    registers[RSP] += 4;
 
     return value;
 }
