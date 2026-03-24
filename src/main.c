@@ -41,10 +41,13 @@ bool GF = false;    // Greater Flag
 time_t timeOnStart = 0;
 uint32_t cycle = 0;
 uint32_t stdin_location = 0xFF100;   // Used for tracking the location of the last byte in stdin
+long long file_size = 0;
 
 int interpreter(Instruction instruction);
 int push(uint8_t type, uint8_t arg1, uint32_t arg2);
 uint32_t pop();
+uint8_t* open_file(char *file_name);
+void load_program_to_memory();
 
 int main(int argc, char *argv[]) {
 
@@ -55,36 +58,13 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    FILE *file = fopen(argv[1], "rb");
-    uint8_t *buffer = NULL; //NOLINT
-    bool running = true;
-
-    if (file == NULL) {
-        puts("FILE DOESNT EXIST");
+    uint8_t *buffer = open_file(argv[1]);
+    if (buffer == NULL) {
+        puts("Program fialed while reading the file");
+        free(buffer);
         return -1;
     }
 
-    timeOnStart = time(NULL); //NOLINT
-
-    fseek(file, 0, SEEK_END);
-
-    long file_size = ftell(file);
-    if (file_size < 0) {
-        puts("Failed to get file size");
-        fclose(file);
-        return -1;
-    }
-
-    rewind(file);
-
-    buffer = malloc((size_t)file_size);
-    if (!buffer) {
-        puts("malloc failed");
-        fclose(file);
-        return -1;
-    }
-
-    fread(buffer, 1, (size_t)file_size, file);
     // Check for header
     if (buffer[0] != 0x43 || buffer[1] != 0x45 || buffer[2] != 0x58 || buffer[3] != 0x45) {
         puts("Invalid file");
@@ -123,6 +103,7 @@ int main(int argc, char *argv[]) {
     enable_nonblocking();
     enable_raw_mode();
 
+
     while (running) {
         instruction.opcode = memory[PC];
         instruction.type = memory[PC+1];
@@ -153,6 +134,42 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
+uint8_t* open_file(char *file_name) {
+    FILE *file = fopen(file_name, "rb");
+    uint8_t *buffer = NULL; //NOLINT
+    bool running = true;
+
+    if (file == NULL) {
+        puts("FILE DOESNT EXIST");
+        return NULL;    //NOLINT
+    }
+
+    timeOnStart = time(NULL); //NOLINT
+
+    fseek(file, 0, SEEK_END);
+
+    file_size = ftell(file);
+    if (file_size < 0) {
+        puts("Failed to get file size");
+        fclose(file);
+        return NULL;    //NOLINT
+    }
+
+    rewind(file);
+
+    buffer = malloc((size_t)file_size);
+    if (!buffer) {
+        puts("malloc failed");
+        fclose(file);
+        return NULL;    //NOLINT
+    }
+
+    fread(buffer, 1, (size_t)file_size, file);
+
+    return buffer;
+}
+
 
 int interpreter(Instruction instruction) {
 
