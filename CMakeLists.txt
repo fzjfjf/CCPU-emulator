@@ -5,6 +5,8 @@ set(CMAKE_C_STANDARD 23)
 
 add_compile_options(-Wall -Wextra -Wpedantic -Werror -Wshadow -Wconversion)
 
-add_executable(CCPU_simulator src/main.c
-        src/input.c
-        src/input.h)
+add_executable(CCPU_simulator src2.0/main.c
+        src2.0/input.c
+        src2.0/input.h
+        src2.0/memory.c
+        src2.0/memory.h)

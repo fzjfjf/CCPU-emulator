@@ -112,8 +112,7 @@ Memory layout looks like this:
 |:------------:|:----------:|:---------------------------------|
 |   0x00000    |  0x000FF   | Interrupt vector table           |
 |   0x00100    |  0x010FF   | Reserved for BIOS                | 
-|   0x01100    |  0xEFFFF   | Memory for the program data      |
-|   0xF0000    |  0xFEFFF   | Memory for the program variables |
+|   0x01100    |  0xFEFFF   | Memory for the program           |
 |   0xFF000    |  0xFF0FF   | Reserved for stdout              |
 |   0xFF100    |  0xFF1FF   | Reserved for stdin               |
 |   0xFF200    |  0xFFFFF   | Reserved for the stack           |
